@@ -48,48 +48,75 @@ export default function SettingsPage() {
 
       <Panel title="Calibration" subtitle="Tune signal settings used by the simulator">
         <div className="grid gap-4 md:grid-cols-2">
-          <SelectField
-            label="Sampling rate"
-            value={state.settings.samplingRate}
-            options={[
-              { label: '100Hz', value: 100 },
-              { label: '200Hz', value: 200 },
-              { label: '400Hz', value: 400 }
-            ]}
-            onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { samplingRate: Number(value) } })}
-          />
+          <div>
+            <SelectField
+              label="Sampling rate"
+              value={state.settings.samplingRate}
+              options={[
+                { label: '100Hz', value: 100 },
+                { label: '200Hz', value: 200 },
+                { label: '400Hz', value: 400 }
+              ]}
+              onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { samplingRate: Number(value) } })}
+            />
+            <p className="mt-1 px-1 text-xs text-slate-500">
+              How many IMU readings per second. Higher = more detail, more data.
+            </p>
+          </div>
 
-          <SelectField
-            label="Baseline profile"
-            value={state.settings.baselineProfile}
-            options={BASELINE_PROFILES.map(profile => ({ label: profile.label, value: profile.id }))}
-            onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { baselineProfile: value } })}
-          />
+          <div>
+            <SelectField
+              label="Baseline profile"
+              value={state.settings.baselineProfile}
+              options={BASELINE_PROFILES.map(profile => ({ label: profile.label, value: profile.id }))}
+              onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { baselineProfile: value } })}
+            />
+            <p className="mt-1 px-1 text-xs text-slate-500">
+              Elite player reference waveform to compare against. Changes the shape of the ideal signal.
+            </p>
+          </div>
         </div>
 
         <div className="mt-4 space-y-4">
-          <SliderField
-            label={`Filter cutoff (${state.settings.filterCutoff} Hz)`}
-            min={20}
-            max={80}
-            value={state.settings.filterCutoff}
-            onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { filterCutoff: Number(value) } })}
-          />
-          <SliderField
-            label={`Noise floor (${state.settings.noiseFloor.toFixed(2)}g)`}
-            min={0.05}
-            max={0.5}
-            step={0.01}
-            value={state.settings.noiseFloor}
-            onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { noiseFloor: Number(value) } })}
-          />
-          <SliderField
-            label={`DTW window (${state.settings.dtwWindow} samples)`}
-            min={10}
-            max={50}
-            value={state.settings.dtwWindow}
-            onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { dtwWindow: Number(value) } })}
-          />
+          <div>
+            <SliderField
+              label={`Filter cutoff (${state.settings.filterCutoff} Hz)`}
+              min={20}
+              max={80}
+              value={state.settings.filterCutoff}
+              onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { filterCutoff: Number(value) } })}
+            />
+            <p className="mt-1 px-1 text-xs text-slate-500">
+              Low-pass filter frequency. Cuts noise above this Hz. Typical human movement &lt; 30 Hz.
+            </p>
+          </div>
+
+          <div>
+            <SliderField
+              label={`Noise floor (${state.settings.noiseFloor.toFixed(2)}g)`}
+              min={0.05}
+              max={0.5}
+              step={0.01}
+              value={state.settings.noiseFloor}
+              onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { noiseFloor: Number(value) } })}
+            />
+            <p className="mt-1 px-1 text-xs text-slate-500">
+              Simulated sensor noise in g. Cheap IMUs (~Rs 500) have ~0.2 g noise. Premium IMUs ~0.05 g.
+            </p>
+          </div>
+
+          <div>
+            <SliderField
+              label={`DTW window (${state.settings.dtwWindow} samples)`}
+              min={10}
+              max={50}
+              value={state.settings.dtwWindow}
+              onChange={value => dispatch({ type: 'UPDATE_SETTINGS', payload: { dtwWindow: Number(value) } })}
+            />
+            <p className="mt-1 px-1 text-xs text-slate-500">
+              How many samples the DTW alignment can shift. Larger = more flexible matching, may miss sharp errors.
+            </p>
+          </div>
         </div>
 
         <div className="mt-4 rounded-2xl border border-slate-200/10 bg-white/5 p-4 text-sm text-slate-300">

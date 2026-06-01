@@ -89,19 +89,14 @@ export function DarkTooltip({ active, payload, label }) {
   )
 }
 
-export function ChatBubble({ role, content, onSpeak }) {
+export function ChatBubble({ role, content }) {
   const isUser = role === 'user'
 
   return (
     <div className={`flex items-start gap-3 ${isUser ? 'justify-end' : ''}`}>
-      {!isUser ? <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/10 bg-white/5 text-xs text-emerald-300">BIQ</div> : null}
+      {!isUser ? <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/10 bg-white/5 text-xs text-emerald-300">Coach</div> : null}
       <div className={`max-w-[760px] rounded-2xl border px-4 py-3 ${isUser ? 'border-slate-200/10 bg-white/[0.08]' : 'border-slate-200/10 bg-white/5'}`}>
         <div className="whitespace-pre-wrap text-sm leading-6 text-slate-100">{content}</div>
-        {!isUser ? (
-          <button className="mt-3 text-xs text-slate-300 underline decoration-slate-500/60 underline-offset-4" onClick={onSpeak}>
-            Speak
-          </button>
-        ) : null}
       </div>
       {isUser ? <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/10 bg-slate-100/10 text-xs text-slate-200">You</div> : null}
     </div>

@@ -6,13 +6,8 @@ import { Badge, DarkTooltip, EmptyState, Panel } from '../components/UI'
 export default function HistoryPage() {
   const { state } = useApp()
   const [selectedId, setSelectedId] = useState(state.sessions[0]?.id || '')
-  const [compareMode, setCompareMode] = useState(false)
-  const [leftId, setLeftId] = useState(state.sessions[0]?.id || '')
-  const [rightId, setRightId] = useState(state.sessions[1]?.id || state.sessions[0]?.id || '')
 
   const selectedSession = state.sessions.find(session => session.id === selectedId) || state.sessions[0]
-  const leftSession = state.sessions.find(session => session.id === leftId) || state.sessions[0]
-  const rightSession = state.sessions.find(session => session.id === rightId) || state.sessions[1] || state.sessions[0]
 
   const analytics = useMemo(() => {
     const scoreSeries = state.sessions.slice().reverse().map(session => ({ name: session.date, score: session.score }))
@@ -138,29 +133,11 @@ export default function HistoryPage() {
                         </div>
                       </div>
                     )) : <EmptyState title="No faults" message="This session has no stored fault detail." />}
-                    <div className="rounded-2xl border border-slate-200/10 bg-white/5 p-3 text-sm text-slate-300">AI summary: {selectedSession.summary}</div>
+                    <div className="rounded-2xl border border-slate-200/10 bg-white/5 p-3 text-sm text-slate-300">Session summary: {selectedSession.summary}</div>
                   </div>
                 </Panel>
               </div>
 
-              <div className="rounded-2xl border border-slate-200/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.22em] text-slate-500">Compare sessions</div>
-                    <div className="text-sm text-slate-400">Choose two sessions to compare their DTW curves.</div>
-                  </div>
-                  <button className="rounded-full border border-slate-200/10 bg-white/5 px-3 py-2 text-sm text-white" onClick={() => setCompareMode(value => !value)}>
-                    {compareMode ? 'Hide' : 'Compare'}
-                  </button>
-                </div>
-
-                {compareMode ? (
-                  <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                    <CompareSession title="Left" session={leftSession} onChange={setLeftId} sessions={state.sessions} />
-                    <CompareSession title="Right" session={rightSession} onChange={setRightId} sessions={state.sessions} />
-                  </div>
-                ) : null}
-              </div>
             </div>
           ) : (
             <EmptyState title="No selected session" message="Run the simulator to populate the history view." />
@@ -190,56 +167,3 @@ function SmallChart({ title, children }) {
   )
 }
 
-function CompareSession({ title, session, onChange, sessions }) {
-  return (
-    <div className="rounded-2xl border border-slate-200/10 bg-black/20 p-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <div className="text-xs uppercase tracking-[0.22em] text-slate-500">{title}</div>
-          <div className="mt-1 text-sm text-white">{session?.stroke}</div>
-        </div>
-        <select className="rounded-xl border border-slate-200/10 bg-white/5 px-3 py-2 text-sm text-white outline-none" value={session?.id || ''} onChange={event => onChange(event.target.value)}>
-          {sessions.map(item => <option key={item.id} value={item.id}>{item.date} · {item.stroke}</option>)}
-        </select>
-      </div>
-
-      {session ? (
-        <>
-          <div className="mt-4 h-[180px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={session.dtwData}>
-                <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
-                <XAxis dataKey="t" hide />
-                <YAxis hide domain={[0, 1]} />
-                <Tooltip content={<DarkTooltip />} />
-                <Line type="monotone" dataKey="distance" stroke="var(--brand)" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            <MiniRing label="Score" value={session.score} />
-            <MiniRing label="Skill" value={session.skill} />
-            <MiniRing label="Faults" value={session.faults} />
-          </div>
-        </>
-      ) : null}
-    </div>
-  )
-}
-
-function MiniRing({ label, value }) {
-  const radius = 28
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference - Math.min(100, value) / 100 * circumference
-
-  return (
-    <div className="rounded-2xl border border-slate-200/10 bg-white/5 p-3 text-center">
-      <svg viewBox="0 0 72 72" className="mx-auto h-16 w-16">
-        <circle cx="36" cy="36" r={radius} fill="none" stroke="rgba(148,163,184,0.18)" strokeWidth="7" />
-        <circle cx="36" cy="36" r={radius} fill="none" stroke="var(--accent)" strokeWidth="7" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 36 36)" />
-      </svg>
-      <div className="text-sm text-white">{value}</div>
-      <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">{label}</div>
-    </div>
-  )
-}

@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Line, LineChart, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { useApp } from '../context/AppContext'
-import { Panel, CountUp, DarkTooltip, Badge } from '../components/UI'
+import { Panel, CountUp, DarkTooltip } from '../components/UI'
 
-export default function DashboardPage({ onJumpToSimulator }) {
+export default function DashboardPage() {
   const { state } = useApp()
   const [tick, setTick] = useState(0)
 
@@ -36,10 +36,9 @@ export default function DashboardPage({ onJumpToSimulator }) {
   return (
     <div className="space-y-4">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Metric title="Session score" value={state.simResult?.score ?? 86} suffix="/100" />
-        <Metric title="Strokes analyzed" value={state.sessions.length + (state.simResult ? 1 : 0)} />
-        <Metric title="Fault rate" value={state.simResult?.faultRate ?? 12} suffix="%" />
-        <Metric title="Streak days" value={state.sessions.length + 14} />
+        <Metric title="Session score" value={state.simResult?.score ?? '—'} suffix={state.simResult ? '/100' : ''} />
+        <Metric title="Fault rate" value={state.simResult?.faultRate ?? '—'} suffix={state.simResult ? '%' : ''} />
+        <Metric title="Sessions run" value={state.sessions.length} />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
@@ -74,7 +73,7 @@ export default function DashboardPage({ onJumpToSimulator }) {
         </Panel>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+      <section className="grid gap-4">
         <Panel title="Recent sessions" subtitle="Latest saved analysis runs">
           <div className="overflow-hidden rounded-2xl border border-slate-200/10">
             <table className="w-full text-left text-sm">
@@ -101,31 +100,23 @@ export default function DashboardPage({ onJumpToSimulator }) {
             </table>
           </div>
         </Panel>
-
-        <Panel title="Quick simulate" subtitle="Jump into the stroke simulator">
-          <div className="flex min-h-[220px] items-center justify-center">
-            <button className="rounded-2xl border border-slate-200/10 bg-white/5 px-5 py-4 text-left transition hover:border-slate-200/20 hover:bg-white/[0.08]" onClick={onJumpToSimulator}>
-              <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Page 2</div>
-              <div className="mt-1 text-lg font-medium text-white">Open stroke simulator</div>
-              <div className="mt-1 text-sm text-slate-400">Run a new IMU simulation.</div>
-            </button>
-          </div>
-        </Panel>
       </section>
     </div>
   )
 }
 
 function Metric({ title, value, suffix = '' }) {
+  const isNumber = typeof value === 'number' && Number.isFinite(value)
+
   return (
     <div className="rounded-2xl border border-slate-200/10 bg-white/5 p-4">
       <div className="text-xs uppercase tracking-[0.22em] text-slate-400">{title}</div>
       <div className="mt-3 flex items-end gap-1">
-        <div className="text-3xl font-medium text-white"><CountUp value={value} /></div>
+        <div className="text-3xl font-medium text-white">{isNumber ? <CountUp value={value} /> : value}</div>
         {suffix ? <div className="pb-1 text-sm text-slate-400">{suffix}</div> : null}
       </div>
       <div className="mt-3 h-1 rounded-full bg-white/5">
-        <div className="h-full rounded-full bg-[color:var(--brand)]/80" style={{ width: `${Math.min(100, Number(value) || 0)}%` }} />
+        <div className="h-full rounded-full bg-[color:var(--brand)]/80" style={{ width: `${Math.min(100, isNumber ? value : 0)}%` }} />
       </div>
     </div>
   )

@@ -37,12 +37,6 @@ export default function AICoachPage() {
     ].join('\n')
   }, [coachingMode, sim])
 
-  function speak(text) {
-    if (!window.speechSynthesis) return
-    window.speechSynthesis.cancel()
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text))
-  }
-
   async function sendMessage(content) {
     if (!content.trim() || streaming) return
 
@@ -57,7 +51,7 @@ export default function AICoachPage() {
     setInputValue('')
     setTyping(true)
     setStreaming(true)
-    setStatusMessage('Streaming coach response...')
+    setStatusMessage('Sending request...')
 
     const assistantIndex = nextMessages.length
     setMessages(prev => [...prev, { role: 'assistant', content: '' }])
@@ -104,17 +98,17 @@ export default function AICoachPage() {
         }
       }
 
-      setStatusMessage('Coach response complete.')
+      setStatusMessage('Response complete.')
     } catch (error) {
       setMessages(prev => {
         const copy = [...prev]
         copy[assistantIndex] = {
           role: 'assistant',
-          content: 'The backend could not reach OpenRouter. Check the server environment key and retry.'
+          content: 'The backend could not reach the coaching service. Check the server connection and retry.'
         }
         return copy
       })
-      setStatusMessage('Streaming failed.')
+      setStatusMessage('Request failed.')
     } finally {
       setTyping(false)
       setStreaming(false)
@@ -160,14 +154,10 @@ export default function AICoachPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/10 bg-white/5 p-4 text-sm text-slate-300">
-            <div className="text-xs uppercase tracking-[0.22em] text-slate-500">Note</div>
-            <p className="mt-2 leading-6">The OpenRouter API key stays on the backend. Add <span className="font-medium text-white">OPENROUTER_API_KEY</span> to the server environment, then use the connection test on the settings page.</p>
-          </div>
         </div>
       </Panel>
 
-      <Panel title="AI coach" subtitle="Streaming through the backend proxy">
+      <Panel title="Coach" subtitle="Live session guidance">
         <div className="flex min-h-[720px] flex-col">
           <div className="mb-4 flex flex-wrap gap-2">
             <button className="rounded-full border border-slate-200/10 bg-white/5 px-3 py-2 text-sm text-slate-200" onClick={() => quickAsk("What's my biggest fault?")}>What's my biggest fault?</button>
@@ -177,12 +167,12 @@ export default function AICoachPage() {
 
           <div className="flex-1 space-y-4 overflow-y-auto rounded-2xl border border-slate-200/10 bg-black/20 p-4">
             {messages.length ? messages.map((message, index) => (
-              <ChatBubble key={`${message.role}-${index}`} role={message.role} content={message.content} onSpeak={() => speak(message.content)} />
+              <ChatBubble key={`${message.role}-${index}`} role={message.role} content={message.content} />
             )) : <EmptyState title="Ask the coach" message="Start with a quick question or write your own coaching prompt." />}
 
             {typing ? (
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/10 bg-white/5 text-xs text-emerald-300">BIQ</div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/10 bg-white/5 text-xs text-emerald-300">Coach</div>
                 <div className="rounded-2xl border border-slate-200/10 bg-white/5 px-4 py-3">
                   <TypingDots />
                 </div>
@@ -208,7 +198,7 @@ export default function AICoachPage() {
                 Send
               </button>
             </div>
-            <div className="mt-2 text-xs text-slate-500">{statusMessage || 'Responses stream token by token from the backend.'}</div>
+            <div className="mt-2 text-xs text-slate-500">{statusMessage || 'Responses appear here once ready.'}</div>
           </div>
         </div>
       </Panel>
